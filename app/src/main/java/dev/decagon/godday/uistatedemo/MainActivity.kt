@@ -4,25 +4,22 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.viewModels
 
 class MainActivity : AppCompatActivity() {
-    // Initial state
-    private var count = 0
+    // Initialize the viewModel by delegation
+    private val viewModel: UIStateViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Assign the state to the TextView
-        findViewById<TextView>(R.id.count_tv).text = getString(R.string.initialCount, count)
-        // Update the state when the user tap on the Button
-        findViewById<Button>(R.id.increase_count_btn).setOnClickListener { updateCount() }
-    }
+        // Observe the state flowing down from viewModel
+        viewModel.count.observe(this) {
+            findViewById<TextView>(R.id.count_tv).text = getString(R.string.initialCount, it)
+        }
 
-    private fun updateCount() {
-        // Update the state
-        count++
-        // Remember to reassigned the new state to the TextView
-        findViewById<TextView>(R.id.count_tv).text = getString(R.string.initialCount, count)
+        // Event flowing up to the viewModel when the user taps the button
+        findViewById<Button>(R.id.increase_count_btn).setOnClickListener { viewModel.updateCount() }
     }
 }
